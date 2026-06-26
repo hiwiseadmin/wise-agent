@@ -1,12 +1,20 @@
 {
     "name": "wiseadmin/wise-agent",
-    "description": "WiseAdmin AI Agent - AI-powered agent system with memory, tools, and event-driven extensibility for ThinkPHP 8",
+    "description": "WiseAdmin AI Agent — 基于大语言模型的智能代理系统，支持多模型接入（OpenAI/DeepSeek）、对话记忆、工具调用与事件驱动扩展",
     "type": "library",
     "license": "MIT",
-    "keywords": ["wiseadmin", "ai", "agent", "llm", "openai", "deepseek"],
+    "keywords": [
+        "wiseadmin",
+        "ai",
+        "agent",
+        "llm",
+        "openai",
+        "deepseek"
+    ],
     "authors": [
         {
-            "name": "WiseAdmin Team"
+            "name": "WiseAdmin Team",
+            "email": "wiseadmin@126.com"
         }
     ],
     "autoload": {
@@ -52,5 +60,19 @@
         "sort-packages": true
     },
     "minimum-stability": "stable",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "homepage": "https://github.com/hiwiseadmin/wise-agent",
+    "archive": {
+        "exclude": [
+            "/tests",
+            "/docs",
+            "/.github",
+            "/phpunit.xml",
+            "/.gitattributes",
+            "/.gitignore",
+            "/*.md",
+            "!/README.md",
+            "/qa/"
+        ]
+    }
 }
