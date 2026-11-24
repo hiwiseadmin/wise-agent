@@ -1,0 +1,97 @@
+{extend name="__WISE_VIEW__/base" /}
+
+{block name="title"}AI 能力审批{/block}
+
+{block name="css"}
+<link rel="stylesheet" href="/statics/plugins/wise-agent/css/ai_approval.css">
+{/block}
+
+{block name="content"}
+<div class="app-main container-fluid pt-3">
+    {include file="__WISE_VIEW__/index_header" /}
+
+    <div id="approval-stats" class="row g-2 mb-3"></div>
+
+    <!-- 搜索区：统一 .ws-filter-bar 外壳（UIS v1.1 §3.5）；控件 id 保持不变，由 js/ai_approval.js 读值 -->
+    <form id="ws-filter" class="ws-filter-bar ws-filter-form row g-2 align-items-end"
+          novalidate data-default-visible="1">
+        <div class="col-6 col-sm-4 col-lg-2 ws-filter-item" data-field="status">
+            <label class="form-label" for="filter-status">状态</label>
+            <select id="filter-status" name="status" class="form-select form-select-sm">
+                <option value="">全部状态</option>
+                <option value="pending">待审批</option>
+                <option value="approved">已批准</option>
+                <option value="consumed">已用尽</option>
+                <option value="rejected">已驳回</option>
+                <option value="expired">已失效</option>
+                <option value="cancelled">已撤回</option>
+            </select>
+        </div>
+        <div class="col-6 col-sm-4 col-lg-2 ws-filter-item" data-field="kind">
+            <label class="form-label" for="filter-kind">能力</label>
+            <select id="filter-kind" name="kind" class="form-select form-select-sm">
+                <option value="">全部能力</option>
+                <option value="tool">工具</option>
+                <option value="skill">技能</option>
+            </select>
+        </div>
+        <div class="col-6 col-sm-4 col-lg-2 ws-filter-item" data-field="access">
+            <label class="form-label" for="filter-access">类型</label>
+            <select id="filter-access" name="access" class="form-select form-select-sm">
+                <option value="">全部类型</option>
+                <option value="read">只读</option>
+                <option value="write">写入</option>
+                <option value="execute">编排执行</option>
+                <option value="admin">管理</option>
+            </select>
+        </div>
+        <div class="col-6 col-sm-4 col-lg-2 ws-filter-item" data-field="risk">
+            <label class="form-label" for="filter-risk">风险</label>
+            <select id="filter-risk" name="risk" class="form-select form-select-sm">
+                <option value="">全部风险</option>
+                <option value="high">高</option>
+                <option value="medium">中</option>
+                <option value="low">低</option>
+            </select>
+        </div>
+        <div class="col-12 col-sm-8 col-lg-2 ws-filter-item" data-field="keyword">
+            <label class="form-label" for="filter-keyword">关键词</label>
+            <input type="text" id="filter-keyword" name="keyword" class="form-control form-control-sm"
+                   placeholder="单号/能力/权限/申请人" autocomplete="off">
+        </div>
+        <div class="col-12 col-lg-2 ws-filter-actions ms-auto justify-content-lg-end">
+            <button type="button" class="btn btn-sm btn-primary ws-filter-submit">
+                <i class="bi bi-search me-1"></i>查询
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary ws-filter-reset">重置</button>
+        </div>
+    </form>
+
+    <div id="toolbar" class="ws-toolbar">
+        <button id="btn-refresh" class="btn btn-sm btn-secondary"><i class="bi bi-arrow-repeat me-1"></i>刷新</button>
+        <button id="btn-expire" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-clock-history me-1"></i>清理过期
+        </button>
+    </div>
+
+    <div class="table-responsive">
+        <table class="approval-table table table-sm table-hover bg-body">
+            <thead>
+            <tr>
+                <th class="col-ident">审批单号</th>
+                <th class="col-cap">能力</th>
+                <th class="col-requester">申请人</th>
+                <th class="col-time">申请时间</th>
+                <th class="col-status">状态</th>
+                <th class="col-action">操作</th>
+            </tr>
+            </thead>
+            <tbody id="approval-body">
+            <tr><td colspan="6" class="text-center text-body-secondary py-4">加载中…</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="approval-pager" class="d-flex justify-content-between align-items-center mt-3"></div>
+</div>
+{/block}

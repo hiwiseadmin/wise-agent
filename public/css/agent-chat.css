@@ -1,0 +1,618 @@
+/**
+ * wise-agent-chat.css — AI 助手聊天面板样式（居中弹窗）
+ *
+ * 主题约定：
+ * - 全面接入框架主题系统（theme.css 的 --ws-* 语义令牌），跟随
+ *   明暗模式（data-bs-theme）与配色方案（data-color-scheme）自动换肤。
+ *
+ * - 弹窗 #wiseAgentModal 在主区域内，继承 <html> 上的主题属性；
+ *   本文件只引用 --ws-*、不写任何 [data-bs-theme] 分支（色值在声明所在元素
+ *   完成 var() 替换），因此无需为每种主题各写一份。
+ *
+ * - 组件级令牌 --wa-* 只做一次语义映射（含兜底值），业务样式一律引用 --wa-*，
+ *   便于集中调整观感，也让 theme.css 缺失时不至于退化成全黑/全白。
+ *
+ * 注：右侧抽屉形态与右下角浮动按钮均已下线，相关样式同步移除。
+ */
+
+/* ============================================================
+ * 组件级语义令牌
+ * ------------------------------------------------------------
+ * 只依赖 --ws-*（Layer 0），与框架实现解耦。
+ * 兜底值取「暗色 + 蓝」，保证无主题表时仍可读。
+ * ============================================================ */
+.wise-agent-panel,
+.wise-agent-modal-header {
+    /* 层级：canvas(页面底) < surface(面板) < elevated(头部 / 输入区) */
+    --wa-bg: var(--ws-bg-surface, #212c3d);
+    --wa-bg-raised: var(--ws-bg-elevated, #253144);
+    --wa-bg-sunken: var(--ws-bg-canvas, #1a2332);
+    --wa-bg-hover: var(--ws-bg-hover, #2b3849);
+
+    --wa-fg: var(--ws-fg-default, #e2e6ea);
+    --wa-fg-muted: var(--ws-fg-muted, #a8b2bd);
+    --wa-fg-subtle: var(--ws-fg-subtle, #8794a3);
+
+    --wa-border: var(--ws-border-default, #3a4558);
+    --wa-border-strong: var(--ws-border-strong, #4a5670);
+
+    --wa-brand: var(--ws-brand, #64b4ff);
+    --wa-brand-hover: var(--ws-brand-hover, #85c5ff);
+    --wa-brand-emphasis: var(--ws-brand-text-emphasis, #a6d6ff);
+    --wa-on-brand: var(--ws-on-brand, #0b1a2e);
+
+    --wa-success: var(--ws-success, #4ade80);
+    --wa-danger: var(--ws-danger, #f87171);
+}
+
+/* ============================================================
+ * 聊天面板
+ * ============================================================ */
+.wise-agent-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--wa-bg);
+    color: var(--wa-fg);
+    font-size: 13px;
+    /* textarea 光标 / 原生滚动条 / 自动填充下拉依赖 color-scheme。
+       Bootstrap 只给 [data-bs-theme=dark] 声明了 color-scheme，亮色靠 :root 继承；
+       弹窗继承 <html> 的主题属性，但不显式声明会漏掉滚动条配色。 */
+    color-scheme: light;
+}
+[data-bs-theme="dark"] .wise-agent-panel {
+    color-scheme: dark;
+}
+
+/* 弹窗标题栏里的机器人徽标 */
+.wise-agent-logo {
+    width: 30px;
+    height: 30px;
+    background: var(--wa-brand);
+    color: var(--wa-on-brand);
+    font-size: 15px;
+}
+
+/* --- 消息区 --- */
+.wise-agent-messages {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    scroll-behavior: smooth;
+    /* 滚动条跟随主题（WebKit 内核 + Firefox） */
+    scrollbar-width: thin;
+    scrollbar-color: var(--wa-border-strong) transparent;
+}
+.wise-agent-messages::-webkit-scrollbar {
+    width: 6px;
+}
+.wise-agent-messages::-webkit-scrollbar-track {
+    background: transparent;
+}
+.wise-agent-messages::-webkit-scrollbar-thumb {
+    background: var(--wa-border-strong);
+    border-radius: 3px;
+}
+.wa-msg {
+    display: flex;
+    gap: 8px;
+    max-width: 100%;
+}
+.wa-msg.user {
+    flex-direction: row-reverse;
+}
+.wa-msg-avatar {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    margin-top: 2px;
+}
+.wa-msg.user .wa-msg-avatar {
+    background: var(--wa-brand);
+    color: var(--wa-on-brand);
+}
+.wa-msg.assistant .wa-msg-avatar {
+    background: var(--wa-bg-hover);
+    color: var(--wa-brand-emphasis);
+}
+.wa-msg-bubble {
+    max-width: calc(100% - 34px);
+    padding: 8px 12px;
+    border-radius: 10px;
+    line-height: 1.6;
+    word-break: break-word;
+    /* white-space 不在此声明：渲染 Markdown 的气泡由组件的 .ws-md 改为常规
+       文档流，而组件样式表先于本文件加载，同权重下会被本文件覆盖。
+       故下移为 .wa-msg-bubble:not(.ws-md) 显式区分，见「Markdown 正文」段。 */
+}
+.wa-msg.user .wa-msg-bubble {
+    background: var(--wa-brand);
+    color: var(--wa-on-brand);
+    border-top-right-radius: 2px;
+}
+.wa-msg.assistant .wa-msg-bubble {
+    background: var(--wa-bg-sunken);
+    color: var(--wa-fg);
+    border-top-left-radius: 2px;
+}
+.wa-msg.system .wa-msg-bubble {
+    background: transparent;
+    color: var(--wa-fg-muted);
+    font-size: 12px;
+    text-align: center;
+    max-width: 100%;
+}
+.wa-msg-typing .wa-msg-bubble::after {
+    content: '▍';
+    animation: wa-blink 1s step-end infinite;
+    color: var(--wa-brand);
+}
+@keyframes wa-blink {
+    50% { opacity: 0; }
+}
+/* 工具调用提示条 */
+.wa-tool-line {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--wa-fg-muted);
+    padding: 2px 0;
+}
+.wa-tool-line i {
+    font-size: 12px;
+}
+.wa-tool-line.ok {
+    color: var(--wa-success);
+}
+
+/* ============================================================
+ * Markdown 正文（AI 回复）
+ * ------------------------------------------------------------
+ * 元素级排版（h/p/ul/pre/table/code ... 的间距与观感）已上移到框架组件
+ * statics/libs/ws-markdown/ws-markdown.css，随 wise-bundle.css 统一加载，
+ * 任何消费方复用同一套观感、且颜色直接读 --ws-* 令牌。
+ *
+ * 本文件只保留「气泡容器」侧的适配：气泡默认给纯文本消息用 pre-wrap，
+ * 渲染 Markdown 的气泡由组件加上 .ws-md 类后改为常规文档流，此处用
+ * :not(.ws-md) 显式区分，避免两条规则同权重时被加载顺序决定胜负。
+ * ============================================================ */
+.wa-msg-bubble:not(.ws-md) {
+    white-space: pre-wrap;
+}
+
+/* --- 输入区 --- */
+.wise-agent-input {
+    flex-shrink: 0;
+    padding: 10px 12px;
+    background: var(--wa-bg-raised);
+    border-top: 1px solid var(--wa-border);
+}
+.wise-agent-input .wa-input-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    background: var(--wa-bg-sunken);
+    border: 1px solid var(--wa-border-strong);
+    border-radius: 12px;
+    padding: 6px 6px 6px 12px;
+    transition: border-color 0.15s ease;
+}
+.wise-agent-input .wa-input-row:focus-within {
+    border-color: var(--wa-brand);
+}
+.wise-agent-input textarea {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    resize: none;
+    color: var(--wa-fg);
+    font-size: 13px;
+    line-height: 1.5;
+    max-height: 96px;
+    padding: 4px 0;
+}
+.wise-agent-input textarea::placeholder {
+    color: var(--wa-fg-subtle);
+}
+.wise-agent-input textarea:disabled {
+    opacity: 0.6;
+}
+.wa-send-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 10px;
+    background: var(--wa-brand);
+    color: var(--wa-on-brand);
+    font-size: 15px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+.wa-send-btn:hover {
+    background: var(--wa-brand-hover);
+}
+.wa-send-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.wise-agent-input .wa-input-hint {
+    margin-top: 6px;
+    font-size: 11px;
+    color: var(--wa-fg-subtle);
+    text-align: center;
+    user-select: none;
+}
+
+/* --- 空状态 --- */
+.wise-agent-empty {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: var(--wa-fg-subtle);
+    padding: 24px;
+    text-align: center;
+}
+.wise-agent-empty i {
+    font-size: 40px;
+    color: var(--wa-border-strong);
+}
+.wise-agent-empty p {
+    margin: 0;
+    font-size: 13px;
+}
+.wise-agent-empty small {
+    font-size: 11px;
+    color: var(--wa-fg-subtle);
+    opacity: 0.75;
+}
+
+/* --- 弹窗头部（Bootstrap modal 内） --- */
+.wise-agent-modal-header {
+    background: var(--wa-bg-raised);
+    color: var(--wa-fg);
+    border-bottom: 1px solid var(--wa-border);
+}
+.wise-agent-modal-header .modal-title {
+    color: var(--wa-fg);
+}
+/* 关闭按钮：本 bundle 的 Bootstrap 未在 [data-bs-theme=dark] 下自动反色
+   （--bs-btn-close-filter 仅由 .btn-close-white 赋值），故按当前上下文显式切换，
+   避免「暗底黑叉 / 亮底白叉」。 */
+.wise-agent-modal-header .btn-close {
+    filter: none;
+}
+[data-bs-theme="dark"] .wise-agent-modal-header .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* --- 弹窗可拖拽 + 可缩放（jquery-ui draggable/resizable） --- */
+/* 弹窗定位：不使用 modal-dialog-centered。
+   原因：它靠 flex + margin:auto 居中，left/top 恒为 0，jquery-ui draggable
+   以 left/top 为基准会导致点击即跳到左上角；且它带 min-height: calc(100% - 1rem)
+   把 dialog 撑到近乎全屏，resizable 缩小时被该 min-height 卡住，
+   表现为「最小高度过大」。改为绝对定位 + JS 计算初始居中（left/top 确定），
+   拖拽与缩放均基于确定坐标，无跳位、高度可控。 */
+#wiseAgentModal .modal-dialog {
+    position: absolute;
+    margin: 0;
+    width: 560px;
+    max-width: calc(100vw - 40px);
+    /* 初始隐藏：遮住「定位前」的中间态（left/top 尚未算出时元素在左上角 0,0），
+       避免出现「先闪到左上角、再跳到中间」。
+       用 visibility 而非 display —— 元素仍参与布局，JS 可测量尺寸后居中，
+       定位完成再由 JS 改为 visible。 */
+    visibility: hidden;
+}
+#wiseAgentModal .modal-content {
+    height: 100%;
+    /* modal-dialog-scrollable 会给 .modal-body 加 max-height 并启用内部滚动，
+       这里改为让 content 自身作为固定高度容器，body 不独立滚动，
+       面板消息区自行 overflow，缩放时消息区正确撑开。 */
+    overflow: hidden;
+}
+#wiseAgentModal .modal-body {
+    /* 去掉 scrollable 默认的 max-height，改为 flex 撑满 content */
+    flex: 1 1 auto;
+    overflow: hidden;
+}
+/* 拖拽时禁用 Bootstrap modal 自带的居中过渡，避免拖动抖动 */
+#wiseAgentModal .modal-dialog.ui-draggable-dragging {
+    transition: none !important;
+    margin: 0 !important;
+}
+/* 拖拽手柄：整条 modal-header 可拖动（用户直观，标题栏即拖动区） */
+#wiseAgentModal .wise-agent-modal-header {
+    cursor: move;
+    user-select: none;
+}
+/* jquery-ui resizable 会给 modal-dialog 挂 .ui-resizable，其右下角手柄是绝对定位
+   在元素上的 div.ui-resizable-se。本项目的 jquery-ui.css 未引入（仅 jquery-ui.min.js），
+   jquery-ui 的手柄定位/尺寸全靠它自己的 css，缺失时手柄退化为 static、被 flex 压成 0。
+   故这里完整补齐手柄的定位与视觉，并与面板主题对齐。 */
+#wiseAgentModal .modal-dialog .ui-resizable-se {
+    position: absolute;
+    display: block;
+    width: 16px;
+    height: 16px;
+    right: 2px;
+    bottom: 2px;
+    background: linear-gradient(135deg, transparent 50%, var(--wa-border-strong, #4a5670) 50%);
+    border-bottom-right-radius: 6px;
+    cursor: se-resize;
+    /* 去掉 jquery-ui 图标默认的纹理，改用纯色渐变 */
+    background-image: none;
+    /* jquery-ui 默认 z-index 90，但 .modal-content 内的面板内容可能层叠更高，
+       显式抬到最上层，确保手柄可被点击命中 */
+    z-index: 1051 !important;
+    pointer-events: auto;
+}
+#wiseAgentModal .modal-dialog .ui-resizable-se:hover {
+    background: linear-gradient(135deg, transparent 50%, var(--wa-brand, #64b4ff) 50%);
+}
+/* 缩放过程中禁用 modal-content 圆角过渡闪烁 */
+#wiseAgentModal .modal-dialog.ui-resizable-resizing .modal-content {
+    transition: none;
+}
+
+/* ============================================================
+ * 会话历史面板（历史会话列表）
+ * ------------------------------------------------------------
+ * 结构（由 agent-chat.js 注入）：
+ *   .wise-agent-sessions
+ *     ├─ .wa-history-hint         加载中 / 空态
+ *     ├─ .wa-history-head         标题 + 数量徽标
+ *     ├─ .wa-history-items        列表（内部滚动）
+ *     │    └─ .wa-history-item    单行（.active / .editing）
+ *     │         ├─ .wa-history-main      （切换主区按钮）
+ *     │         │    ├─ .wa-history-title
+ *     │         │    └─ .wa-history-meta
+ *     │         ├─ .wa-history-actions
+ *     │         │    └─ .wa-history-btn  （.primary / .danger）
+ *     │         ├─ .wa-history-rename    （内联重命名输入框）
+ *     │         └─ .wa-history-current   （当前会话徽标）
+ *     └─ .wa-history-more         加载更多
+ *
+ * 布局决策：采用「流式占位」——面板是 flex 列中 header 之下的一个可收缩
+ * 条目，展开时占据有限高度（列表内部滚动），消息区按剩余空间自适应。
+ * 头部与输入区始终可见，历史按钮可再次点击收起，不破坏 toggle 语义。
+ *
+ * ⚠️ 必须显式补 [hidden]{display:none}：本面板 display:flex 会覆盖 UA 的
+ *    [hidden] 默认样式，不补回会导致 hidden 属性失效、面板常显。
+ * ============================================================ */
+.wise-agent-sessions {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    max-height: 60%;
+    min-height: 0;
+    overflow: hidden;
+    background: var(--wa-bg-sunken);
+    border-bottom: 1px solid var(--wa-border);
+}
+.wise-agent-sessions[hidden] {
+    display: none;
+}
+
+/* --- 面板头（标题 + 数量） --- */
+.wa-history-head {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--wa-fg-muted);
+}
+.wa-history-num {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+    line-height: 1.4;
+    padding: 0 8px;
+    border-radius: 999px;
+    color: var(--wa-fg-muted);
+    background: var(--wa-bg-hover);
+}
+
+/* --- 列表滚动区 --- */
+.wa-history-items {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 0 6px 6px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--wa-border-strong) transparent;
+}
+.wa-history-items::-webkit-scrollbar {
+    width: 6px;
+}
+.wa-history-items::-webkit-scrollbar-thumb {
+    background: var(--wa-border-strong);
+    border-radius: 3px;
+}
+
+/* --- 加载中 / 空态 --- */
+.wa-history-hint {
+    padding: 18px 14px;
+    text-align: center;
+    font-size: 12px;
+    line-height: 1.7;
+    color: var(--wa-fg-subtle);
+}
+.wa-history-hint small {
+    color: var(--wa-fg-subtle);
+    opacity: 0.7;
+}
+
+/* --- 单行 --- */
+.wa-history-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 4px;
+    border-radius: 8px;
+    transition: background 0.15s ease;
+}
+.wa-history-item:hover {
+    background: var(--wa-bg-hover);
+}
+.wa-history-item.active {
+    background: var(--wa-bg-hover);
+}
+
+/* 主区（切换按钮）：去掉 button 默认外观，占满剩余宽度 */
+.wa-history-main {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+    padding: 8px 10px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+.wa-history-title {
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.3;
+    color: var(--wa-fg);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.wa-history-item.active .wa-history-title {
+    font-weight: 600;
+    color: var(--wa-brand-emphasis);
+}
+.wa-history-meta {
+    font-size: 11px;
+    line-height: 1.3;
+    color: var(--wa-fg-subtle);
+}
+
+/* 行内动作（重命名 / 删除 / 确认）：默认隐藏，hover / 当前 / 编辑时露出 */
+.wa-history-actions {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+.wa-history-item:hover .wa-history-actions,
+.wa-history-item.active .wa-history-actions,
+.wa-history-item.editing .wa-history-actions {
+    opacity: 1;
+}
+.wa-history-btn {
+    width: 26px;
+    height: 26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--wa-fg-muted);
+    font-size: 13px;
+    cursor: pointer;
+}
+.wa-history-btn:hover {
+    background: var(--wa-bg-raised);
+    color: var(--wa-fg);
+}
+.wa-history-btn.primary {
+    color: var(--wa-success);
+}
+.wa-history-btn.danger:hover {
+    color: var(--wa-danger);
+}
+
+/* 当前会话徽标 */
+.wa-history-current {
+    flex-shrink: 0;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1;
+    padding: 3px 6px;
+    border-radius: 999px;
+    color: var(--wa-brand);
+    background: var(--wa-bg-raised);
+}
+
+/* 内联重命名输入框 */
+.wa-history-item.editing {
+    gap: 4px;
+}
+.wa-history-rename {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 6px 8px;
+    border: 1px solid var(--wa-border-strong);
+    border-radius: 6px;
+    background: var(--wa-bg-raised);
+    color: var(--wa-fg);
+    font-size: 13px;
+    line-height: 1.3;
+    outline: none;
+}
+.wa-history-rename:focus {
+    border-color: var(--wa-brand);
+}
+
+/* 加载更多 */
+.wa-history-more {
+    flex-shrink: 0;
+    margin: 0 6px 8px;
+    padding: 7px 12px;
+    border: 1px solid var(--wa-border);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--wa-fg-muted);
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+.wa-history-more:hover:not(:disabled) {
+    background: var(--wa-bg-hover);
+    color: var(--wa-fg);
+}
+.wa-history-more:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* 键盘可达性：给交互元素补可见焦点环（主题化） */
+.wa-history-main:focus-visible,
+.wa-history-btn:focus-visible,
+.wa-history-more:focus-visible,
+.wa-history-rename:focus-visible {
+    outline: 2px solid var(--wa-brand);
+    outline-offset: 1px;
+}
