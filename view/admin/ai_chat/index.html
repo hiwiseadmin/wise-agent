@@ -1,0 +1,95 @@
+{extend name="__WISE_VIEW__/base" /}
+
+{block name="title"}AI 对话{/block}
+
+{block name="css"}
+<link rel="stylesheet" href="/statics/plugins/wise-agent/css/ai_chat.css">
+{/block}
+
+{block name="content"}
+<div class="app-main container-fluid ai-chat-page">
+    <div class="ai-chat-wrapper">
+        <!-- 左：会话列表 -->
+        <div class="ai-chat-sessions">
+            <div class="ai-chat-panel-header">
+                <span><i class="bi bi-chat-left-text"></i> 对话列表</span>
+                <button class="btn btn-sm btn-primary" id="btn-new-session" title="新对话">
+                    <i class="bi bi-plus"></i>
+                </button>
+            </div>
+            <div class="ai-chat-sessions-list" id="sessions-list">
+                <div class="text-center text-body-secondary pt-4 small">
+                    <i class="bi bi-arrow-repeat"></i> 加载中…
+                </div>
+            </div>
+        </div>
+
+        <!-- 中：聊天区 -->
+        <div class="ai-chat-panel">
+            <div class="ai-chat-messages" id="chat-messages">
+                <div class="text-center text-body-secondary pt-5">
+                    <i class="bi bi-robot" style="font-size:2rem;"></i>
+                    <p>开始新的对话吧</p>
+                    <p class="small">Enter 发送，Shift+Enter 换行</p>
+                </div>
+            </div>
+
+            <!-- 中断恢复横幅 -->
+            <div class="ai-chat-resume-banner" id="resume-banner" style="display:none;">
+                <span class="ai-chat-resume-text"><i class="bi bi-exclamation-triangle"></i> <span id="resume-reason"></span></span>
+                <button class="btn btn-warning btn-sm" id="btn-resume">
+                    <i class="bi bi-arrow-repeat"></i> 继续执行
+                </button>
+            </div>
+
+            <div class="ai-chat-input-area">
+                <div class="d-flex align-items-center mb-2 gap-2">
+                    <select class="form-select form-select-sm" id="select-provider" style="width:auto;flex:none;"></select>
+                    <button class="btn btn-sm btn-outline-secondary" id="btn-clear-session" title="清空对话">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary ms-auto" id="btn-stop" title="停止生成" style="display:none;">
+                        <i class="bi bi-stop"></i> 停止
+                    </button>
+                </div>
+                <div class="input-group">
+                    <textarea class="form-control" id="input-message" rows="2" placeholder="输入消息..."></textarea>
+                    <button class="btn btn-primary" id="btn-send">
+                        <i class="bi bi-send"></i> 发送
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右：工具 & 工作流面板 -->
+        <div class="ai-chat-tools">
+            <div class="ai-chat-panel-header">
+                <ul class="nav nav-tabs" id="right-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#tab-tools">
+                            <i class="bi bi-wrench"></i> 工具
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#tab-workflow">
+                            <i class="bi bi-diagram-3"></i> 工作流
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="tab-content ai-chat-tabs-body">
+                <div class="tab-pane fade show active h-100" id="tab-tools">
+                    <div class="ai-chat-tools-list" id="tools-list">
+                        <div class="text-center text-body-secondary pt-4 small"><i class="bi bi-arrow-repeat"></i> 加载工具…</div>
+                    </div>
+                </div>
+                <div class="tab-pane fade h-100" id="tab-workflow">
+                    <div class="ai-chat-tools-list" id="workflow-nodes-list">
+                        <div class="text-center text-body-secondary pt-4 small"><i class="bi bi-arrow-repeat"></i> 加载节点…</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{/block}

@@ -1,0 +1,36 @@
+/* AI 能力审批中心 —— wise-agent 包内后台页样式
+   发布路径：public/ → /statics/plugins/wise-agent/css/ai_approval.css */
+
+/* 统计卡片 */
+.approval-stat {
+    border: 1px solid var(--bs-border-color);
+    border-radius: .5rem;
+    padding: .5rem .75rem;
+    cursor: pointer;
+    transition: background .15s, border-color .15s;
+    background: var(--bs-body-bg);
+}
+.approval-stat:hover { background: var(--bs-secondary-bg); }
+.approval-stat.active { border-color: var(--bs-primary); background: var(--bs-primary-bg-subtle); }
+.approval-stat .stat-num { font-size: 1.25rem; font-weight: 600; line-height: 1.2; }
+.approval-stat .stat-label { font-size: .75rem; color: var(--bs-secondary-color); }
+
+/* 列表 */
+.approval-table { table-layout: fixed; }
+.approval-table th, .approval-table td { vertical-align: middle; }
+.approval-table .col-ident     { width: 18%; word-break: break-all; }
+.approval-table .col-cap       { width: 20%; }
+.approval-table .col-requester { width: 12%; }
+.approval-table .col-time      { width: 14%; }
+.approval-table .col-status    { width: 10%; }
+.approval-table .col-action    { width: 26%; }
+
+/* 详情弹层：参数快照 */
+.approval-args {
+    max-height: 320px;
+    overflow: auto;
+    background: var(--bs-tertiary-bg);
+    border-radius: .375rem;
+    padding: .5rem;
+    font-size: .8125rem;
+}

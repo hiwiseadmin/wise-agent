@@ -1,0 +1,21 @@
+{extend name="__WISE_VIEW__/base" /}
+
+{block name="title"}执行详情{/block}
+
+{block name="content"}
+<div id="log-detail" data-tracking-id="{$tracking_id|default=''}" class="container-fluid p-3">
+    <div class="card mb-3">
+        <div class="card-header small fw-bold">事实层</div>
+        <div class="card-body" id="detail-facts">
+            <div class="text-body-secondary small">加载中…</div>
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header small fw-bold">结果 / 错误</div>
+        <div class="card-body">
+            <pre id="detail-result" class="small mb-0" style="white-space: pre-wrap; word-break: break-all;"></pre>
+        </div>
+    </div>
+</div>
+{/block}

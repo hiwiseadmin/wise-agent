@@ -1,0 +1,101 @@
+{extend name="__WISE_VIEW__/base" /}
+
+{block name="title"}审批单详情{/block}
+
+{block name="css"}
+<link rel="stylesheet" href="/statics/plugins/wise-agent/css/ai_approval.css">
+{/block}
+
+{block name="content"}
+<div class="container-fluid py-3">
+    <table class="table table-sm table-borderless mb-3">
+        <tbody>
+        <tr>
+            <th style="width:110px;">审批单号</th>
+            <td><code>{$approval.ident}</code></td>
+            <th style="width:90px;">状态</th>
+            <td><span class="badge bg-secondary">{$approval.status_label}</span></td>
+        </tr>
+        <tr>
+            <th>能力</th>
+            <td>
+                <span class="badge bg-info">{$approval.capability_kind}</span>
+                {$approval.capability_name}
+            </td>
+            <th>权限标识</th>
+            <td><code>{$approval.permission}</code></td>
+        </tr>
+        <tr>
+            <th>访问类型</th>
+            <td>{$approval.access}</td>
+            <th>风险等级</th>
+            <td>{$approval.risk}</td>
+        </tr>
+        <tr>
+            <th>审批模式</th>
+            <td>{$approval.mode}</td>
+            <th>命中规则</th>
+            <td><code>{$approval.rule}</code></td>
+        </tr>
+        <tr>
+            <th>申请人</th>
+            <td>#{$approval.requester_id}</td>
+            <th>申请时间</th>
+            <td>{$approval.create_time}</td>
+        </tr>
+        <tr>
+            <th>剩余次数</th>
+            <td>{$approval.uses_left} / {$approval.uses_total}</td>
+            <th>失效时间</th>
+            <td>{$approval.expire_time ?: '—'}</td>
+        </tr>
+        <tr>
+            <th>决策人</th>
+            <td>{$approval.decider_id ?: '—'}</td>
+            <th>决策时间</th>
+            <td>{$approval.decided_at ?: '—'}</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="mb-2"><strong>需要审批的原因</strong></div>
+    <div class="alert alert-warning py-2 small mb-3">{$approval.reason ?: '—'}</div>
+
+    <div class="mb-2"><strong>调用参数快照</strong></div>
+    <pre class="approval-args mb-3">{$approval.arguments_pretty ?: '（无参数）'}</pre>
+
+    {if $approval.workflow_subject}
+        <div class="mb-2">
+            <strong>工作流流转</strong>
+            <span class="badge bg-secondary ms-1">{$approval.workflow_subject}</span>
+            {if $approval.pending_votes > 0}
+                <span class="badge bg-warning text-dark ms-1">待会签 {$approval.pending_votes} 人</span>
+            {/if}
+        </div>
+        {if $workflowHistory}
+            <table class="table table-sm table-hover mb-3">
+                <thead>
+                <tr><th style="width:150px;">时间</th><th style="width:110px;">动作</th><th>状态变化</th><th style="width:80px;">操作人</th></tr>
+                </thead>
+                <tbody>
+                {volist name="workflowHistory" id="h"}
+                    <tr>
+                        <td class="small text-body-secondary">{$h.create_time}</td>
+                        <td><code>{$h.transition_name}</code></td>
+                        <td class="small">{$h.from_place ?: '—'} → {$h.to_place ?: '—'}</td>
+                        <td class="small">{$h.user_id ?: '—'}</td>
+                    </tr>
+                {/volist}
+                </tbody>
+            </table>
+        {else}
+            <div class="text-body-secondary small mb-3">暂无流转记录</div>
+        {/if}
+    {/if}
+
+    {if $approval.decision_note}
+        <div class="mb-2"><strong>决策备注</strong></div>
+        <div class="alert alert-secondary py-2 small mb-0">{$approval.decision_note}</div>
+    {/if}
+</div>
+{/block}

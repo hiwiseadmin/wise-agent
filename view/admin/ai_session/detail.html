@@ -1,0 +1,21 @@
+{extend name="__WISE_VIEW__/base" /}
+
+{block name="title"}会话详情{/block}
+
+{block name="content"}
+<div id="session-detail" data-session-id="{$session_id|default=''}" class="container-fluid p-3">
+    <div class="card mb-3">
+        <div class="card-header small fw-bold">会话信息</div>
+        <div class="card-body" id="detail-meta">
+            <div class="text-body-secondary small">加载中…</div>
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header small fw-bold">消息记录</div>
+        <div class="card-body p-0">
+            <div id="detail-messages" class="list-group list-group-flush"></div>
+        </div>
+    </div>
+</div>
+{/block}

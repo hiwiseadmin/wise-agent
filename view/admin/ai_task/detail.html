@@ -1,0 +1,29 @@
+{extend name="__WISE_VIEW__/base" /}
+
+{block name="title"}任务详情{/block}
+
+{block name="content"}
+<div id="task-detail" data-tracking-id="{$tracking_id|default=''}" class="container-fluid p-3">
+    <div class="card mb-3">
+        <div class="card-header small fw-bold">事实层</div>
+        <div class="card-body" id="detail-facts">
+            <div class="text-body-secondary small">加载中…</div>
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header small fw-bold">计划步骤 <span class="text-body-secondary fw-normal">(强关联)</span></div>
+        <div class="card-body" id="detail-plan"></div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header small fw-bold">闭环轨迹 <span class="text-body-secondary fw-normal">(强关联，trace 可复制)</span></div>
+        <div class="card-body" id="detail-closure"></div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header small fw-bold">Pipeline 运行 <span class="text-body-secondary fw-normal">(弱关联)</span></div>
+        <div class="card-body" id="detail-pipeline"></div>
+    </div>
+</div>
+{/block}

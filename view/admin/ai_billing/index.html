@@ -1,0 +1,47 @@
+{extend name="__WISE_VIEW__/base" /}
+
+{block name="title"}AI 用量仪表盘{/block}
+
+{block name="content"}
+<div class="app-main container-fluid pt-3">
+    {include file="__WISE_VIEW__/index_header" /}
+
+    <div id="billing-declaration" class="alert alert-secondary small py-2 mb-3"></div>
+
+    <div class="row g-3">
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header small fw-bold">用量概览</div>
+                <div class="card-body" id="billing-overview"></div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card h-100">
+                <div class="card-header small fw-bold">近 30 天趋势</div>
+                <div class="card-body" id="billing-trend"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mt-1">
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header small fw-bold">Top 用户</div>
+                <div class="card-body" id="billing-top-users"></div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header small fw-bold">Top 模型</div>
+                <div class="card-body" id="billing-top-models"></div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header small fw-bold">Top 提供商</div>
+                <div class="card-body" id="billing-top-providers"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{/block}
